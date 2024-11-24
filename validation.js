@@ -1,13 +1,22 @@
 document.getElementById('secureForm').addEventListener('submit', function (event) {
-    // Fetch form values
-    const firstName = document.getElementById('firstName').value.trim();
-    const lastName = document.getElementById('lastName').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const password = document.getElementById('password').value;
-    const confirmPassword = document.getElementById('confirmPassword').value;
+    // Fetch and sanitize form values
+    const fields = ['firstName', 'lastName', 'email', 'password', 'confirmPassword'];
+    let sanitizedValues = {};
 
-    // Check for empty fields
-    if (!firstName || !lastName || !email || !password || !confirmPassword) {
+    fields.forEach(field => {
+        const value = document.getElementById(field).value.trim();
+        sanitizedValues[field] = sanitizeInput(value);
+
+        // Check if the sanitized input differs from the original
+        if (value !== sanitizedValues[field]) {
+            alert(`Invalid characters detected in ${field}. Please remove them.`);
+            event.preventDefault(); // Stop form submission
+            return;
+        }
+    });
+
+    // Validate required fields
+    if (!sanitizedValues.firstName || !sanitizedValues.lastName || !sanitizedValues.email || !sanitizedValues.password || !sanitizedValues.confirmPassword) {
         alert('All fields are required.');
         event.preventDefault();
         return;
@@ -15,18 +24,18 @@ document.getElementById('secureForm').addEventListener('submit', function (event
 
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    if (!emailRegex.test(sanitizedValues.email)) {
         alert('Invalid email format.');
         event.preventDefault();
         return;
     }
 
     // Check if passwords match
-    if (password !== confirmPassword) {
+    if (sanitizedValues.password !== sanitizedValues.confirmPassword) {
         alert('Passwords do not match.');
         event.preventDefault();
         return;
     }
 
-    alert('Form submitted successfully!');
+    alert('Form submitted securely!');
 });
